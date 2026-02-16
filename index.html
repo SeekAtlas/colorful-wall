@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛博留声 · 科技感留言墙</title>
+    <style>
+        /* === 科技感深色主题 · 发光边框 · 霓虹氛围 === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', 'Roboto', system-ui, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #0b0d1e, #030514);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        /* 扫描线效果 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,255,255,0.02) 0px, rgba(0,0,0,0.5) 2px, transparent 3px);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .main-wrapper {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(10, 20, 30, 0.65);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 32px;
+            padding: 2.4rem 2.2rem;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 200, 0.1);
+        }
+
+        /* 头部霓虹 */
+        .wall-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #00ffff40;
+            padding-bottom: 1rem;
+        }
+        .wall-header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 6px;
+            background: linear-gradient(135deg, #a0f0ff, #70f0d0, #00c0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 12px #0ff, 0 0 25px #0ff;
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+        }
+        .wall-header p {
+            color: #aaddff;
+            font-size: 1.1rem;
+            background: rgba(0, 255, 255, 0.1);
+            display: inline-block;
+            padding: 0.4rem 2rem;
+            border-radius: 40px;
+            border: 1px solid #0ff;
+            box-shadow: 0 0 12px #0ff4;
+            backdrop-filter: blur(5px);
+        }
+
+        /* 容量条 – 能量槽风格 */
+        .capacity-text {
+            display: flex;
+            justify-content: flex-end;
+            color: #8ae2ff;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            font-weight: 500;
+            text-shadow: 0 0 5px cyan;
+        }
+        .capacity-bar {
+            background: #1a2a3a;
+            border-radius: 30px;
+            height: 20px;
+            margin: 10px 0 25px;
+            border: 1px solid #0ff;
+            box-shadow: inset 0 2px 8px #000, 0 0 15px #0ff6;
+            overflow: hidden;
+        }
+        .capacity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f0ff, #00ccff, #0066ff);
+            width: 0%;
+            border-radius: 30px;
+            box-shadow: 0 0 20px #00f0ff;
+            transition: width 0.3s ease;
+        }
+
+        /* 表单 – 科技输入 */
+        .message-form {
+            background: rgba(0, 20, 30, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid #0ff;
+            border-radius: 40px;
+            padding: 2rem 2.2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 0 30px #0ff3, inset 0 0 10px #0ff2;
+        }
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 1.4rem;
+        }
+        .input-row label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #9fd9ff;
+            letter-spacing: 2px;
+            margin-left: 0.5rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 4px cyan;
+        }
+        .input-row input, .input-row textarea {
+            background: #0a1a24;
+            border: 1px solid #00e0ff;
+            border-radius: 30px;
+            padding: 0.9rem 1.5rem;
+            font-size: 1rem;
+            color: #e0f0ff;
+            outline: none;
+            transition: 0.2s;
+            box-shadow: 0 0 10px #00aaff40, inset 0 0 8px #004466;
+        }
+        .input-row input:focus, .input-row textarea:focus {
+            border-color: #ff66ff;
+            box-shadow: 0 0 20px #ff66ff, inset 0 0 10px #0ff;
+        }
+        .input-row textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .input-row input::placeholder, .input-row textarea::placeholder {
+            color: #9fcfdf60;
+            font-style: italic;
+        }
+
+        /* 颜色选择 – 未来感 */
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            background: #041e2a;
+            padding: 0.8rem 1.5rem;
+            border-radius: 60px;
+            border: 1px solid #0ff;
+            margin-bottom: 1.5rem;
+        }
+        .color-row label {
+            color: #aff0ff;
+            font-weight: 600;
+            text-shadow: 0 0 3px cyan;
+        }
+        #colorPicker {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #0ff;
+            cursor: pointer;
+            background: #000;
+            box-shadow: 0 0 20px #0ff;
+        }
+        .preset-colors {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .preset {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #0ff;
+            box-shadow: 0 0 10px currentColor;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .preset:hover {
+            transform: scale(1.15);
+            border-color: white;
+            box-shadow: 0 0 20px white;
+        }
+
+        /* 发布按钮 – 霓虹灯管 */
+        .submit-btn {
+            background: transparent;
+            border: 2px solid #0ff;
+            border-radius: 60px;
+            padding: 1rem 2rem;
+            color: #0ff;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: 0.2s;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px #0ff, inset 0 0 8px #0ff;
+            background: rgba(0, 255, 255, 0.05);
+        }
+        .submit-btn:hover {
+            background: #0ff2;
+            color: #fff;
+            border-color: #ff66ff;
+            box-shadow: 0 0 35px #ff66ff, inset 0 0 15px #ff66ff;
+        }
+        .submit-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            border-color: #5f9faf;
+            box-shadow: none;
+        }
+
+        /* 计数徽章 */
+        .message-stat {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+        .count-badge {
+            background: #001c28;
+            padding: 0.5rem 1.8rem;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 1px solid #0ff;
+            color: #0ff;
+            box-shadow: 0 0 12px cyan;
+            backdrop-filter: blur(8px);
+        }
+
+        /* 留言卡片 – 半透明悬浮发光 */
+        .message-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.3rem;
+        }
+        .message-item {
+            background: rgba(8, 25, 40, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            border-radius: 30px 30px 30px 8px;
+            padding: 1.6rem 2rem;
+            border-left: 12px solid #0ff; /* 动态颜色通过内联覆盖 */
+            box-shadow: 0 10px 0 #00161e, 0 0 30px #00ffff40;
+            transition: 0.2s;
+        }
+        .message-item:hover {
+            transform: translateY(-5px);
+            border-left-width: 16px;
+            box-shadow: 0 15px 0 #001a24, 0 0 50px #ff66ff80;
+            border-color: #ff66ff;
+        }
+        .message-name {
+            font-weight: 700;
+            color: #fff;
+            font-size: 1.2rem;
+            display: inline-block;
+            background: linear-gradient(145deg, #0ff2, #ff66ff20);
+            padding: 0.2rem 1.4rem;
+            border-radius: 40px;
+            margin-bottom: 0.7rem;
+            border: 1px solid #0ff;
+            box-shadow: 0 0 8px cyan;
+            text-shadow: 0 0 6px cyan;
+        }
+        .message-text {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #e2f0ff;
+            margin-bottom: 0.6rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            text-shadow: 0 0 4px #afcfff;
+        }
+        .message-footer {
+            display: flex;
+            justify-content: flex-end;
+            color: #9fcfef;
+            font-size: 0.85rem;
+            border-top: 1px dashed #0ff6;
+            padding-top: 0.7rem;
+            margin-top: 0.2rem;
+            text-transform: uppercase;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: rgba(0,30,40,0.6);
+            border-radius: 48px;
+            border: 2px dashed #0ff;
+            color: #aff0ff;
+            font-size: 1.4rem;
+            box-shadow: 0 0 30px #0ff3;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-note {
+            margin-top: 2.8rem;
+            color: #6fa8bf;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 1px solid #0ff4;
+            padding-top: 1.5rem;
+            text-shadow: 0 0 2px cyan;
+        }
+
+        /* 匿名斜体保持可见 */
+        .anonymous {
+            color: #a0ddff;
+            font-style: italic;
+        }
+
+        @media (max-width: 550px) {
+            .main-wrapper { padding: 1.5rem; }
+            .wall-header h1 { font-size: 2rem; }
+        }
+    </style>
+    <!-- 引入Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="wall-header">
+            <h1>⚡ NEO·留声 ⚡</h1>
+            <p>每人一句 · 霓虹光谱</p>
+        </div>
+
+        <!-- 容量槽 -->
+        <div class="capacity-text">
+            <span id="capacityUsed">0</span> / 30 句
+        </div>
+        <div class="capacity-bar">
+            <div class="capacity-fill" id="capacityFill"></div>
+        </div>
+
+        <!-- 表单 -->
+        <div class="message-form">
+            <div class="input-row">
+                <label>🆔 识别码</label>
+                <input type="text" id="nameInput" placeholder="匿名访客" maxlength="30">
+            </div>
+            
+            <div class="color-row">
+                <label>🌈 辉光</label>
+                <input type="color" id="colorPicker" value="#00ccff">
+                <div class="preset-colors">
+                    <div class="preset" style="background: #00ffff;" data-color="#00ffff"></div>
+                    <div class="preset" style="background: #ff66ff;" data-color="#ff66ff"></div>
+                    <div class="preset" style="background: #66ff99;" data-color="#66ff99"></div>
+                    <div class="preset" style="background: #ffaa00;" data-color="#ffaa00"></div>
+                    <div class="preset" style="background: #ff4444;" data-color="#ff4444"></div>
+                    <div class="preset" style="background: #aa88ff;" data-color="#aa88ff"></div>
+                </div>
+            </div>
+
+            <div class="input-row">
+                <label>📡 讯息</label>
+                <textarea id="messageInput" placeholder="编码你的话 ..." maxlength="280"></textarea>
+            </div>
+            <button class="submit-btn" id="postBtn">⟳ 发送 ⟳</button>
+        </div>
+
+        <!-- 计数器 -->
+        <div class="message-stat">
+            <span class="count-badge" id="messageCount">0 / 30 句</span>
+        </div>
+
+        <!-- 留言列表 -->
+        <div id="messageList" class="message-grid">
+            <div class="empty-state">🔄 建立连接中 ...</div>
+        </div>
+
+        <div class="footer-note">
+            💿 全球共享 · 上限30句 · 自动覆盖旧数据 · 无人能删
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ========== 你的 Supabase 配置 (已用最新密钥) ==========
+            const SUPABASE_URL = 'https://tnwmhcddhzyeqpwkwzxz.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRud21oY2RkaHp5ZXFwd2t3enh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MzQyOTgsImV4cCI6MjA4NjUxMDI5OH0.nMYL_TKYhJiMtLigfIZslFKDLLYEfdH_30SJD2H6bV0';
+            
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const MAX_MESSAGES = 30;
+
+            // DOM 元素
+            const messageListEl = document.getElementById('messageList');
+            const messageCountEl = document.getElementById('messageCount');
+            const capacityUsedEl = document.getElementById('capacityUsed');
+            const capacityFillEl = document.getElementById('capacityFill');
+            const nameInput = document.getElementById('nameInput');
+            const messageInput = document.getElementById('messageInput');
+            const colorPicker = document.getElementById('colorPicker');
+            const postBtn = document.getElementById('postBtn');
+            const presetColors = document.querySelectorAll('.preset');
+
+            // 转义
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/[&<>"]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    if (m === '"') return '&quot;';
+                    return m;
+                });
+            }
+
+            // 加载留言
+            async function loadMessages() {
+                try {
+                    const { data, error } = await supabase
+                        .from('messages')
+                        .select('*')
+                        .order('timestamp', { ascending: false })
+                        .limit(MAX_MESSAGES);
+                    
+                    if (error) throw error;
+                    renderMessages(data || []);
+                    updateCapacityUI(data?.length || 0);
+                } catch (err) {
+                    console.error(err);
+                    messageListEl.innerHTML = '<div class="empty-state">⚠️ 连接异常，刷新重试</div>';
+                }
+            }
+
+            // 渲染卡片
+            function renderMessages(messages) {
+                if (!messages.length) {
+                    messageListEl.innerHTML = '<div class="empty-state">🌀 虚空静待…… 留下第一条讯息</div>';
+                    return;
+                }
+                let html = '';
+                messages.forEach(msg => {
+                    const displayName = (msg.name && msg.name.trim()) ? escapeHtml(msg.name.trim()) : '<span class="anonymous">匿名</span>';
+                    const text = escapeHtml(msg.text || '');
+                    const color = (msg.color && /^#[0-9A-Fa-f]{6}$/.test(msg.color)) ? msg.color : '#00ccff';
+                    let timeStr = '';
+                    if (msg.timestamp) {
+                        const d = new Date(msg.timestamp);
+                        timeStr = `${d.getFullYear().toString().slice(2)}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+                    }
+                    html += `<div class="message-item" style="border-left-color: ${color};">
+                        <div class="message-name">${displayName}</div>
+                        <div class="message-text">${text}</div>
+                        <div class="message-footer"><span>⚡ ${timeStr}</span></div>
+                    </div>`;
+                });
+                messageListEl.innerHTML = html;
+            }
+
+            function updateCapacityUI(count) {
+                capacityUsedEl.innerText = count;
+                const percent = (count / MAX_MESSAGES) * 100;
+                capacityFillEl.style.width = percent + '%';
+                messageCountEl.innerText = `${count} / ${MAX_MESSAGES} 句`;
+                postBtn.classList.toggle('disabled', count >= MAX_MESSAGES);
+                postBtn.disabled = count >= MAX_MESSAGES;
+            }
+
+            // 发布留言
+            async function addMessage() {
+                if (postBtn.disabled) {
+                    alert('已达到30句上限，无法再发送。');
+                    return;
+                }
+                const text = messageInput.value.trim();
+                if (!text) {
+                    alert('讯息不能为空');
+                    return;
+                }
+                const name = nameInput.value.trim() || '匿名';
+                const color = colorPicker.value;
+
+                const { error } = await supabase
+                    .from('messages')
+                    .insert([{
+                        name: name,
+                        text: text,
+                        color: color,
+                        timestamp: Date.now()
+                    }]);
+                
+                if (error) {
+                    alert('发送失败: ' + error.message);
+                    console.error(error);
+                    return;
+                }
+
+                messageInput.value = '';    // 清空输入框
+                loadMessages();              // 刷新列表
+            }
+
+            // 事件绑定
+            postBtn.addEventListener('click', addMessage);
+            messageInput.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    addMessage();
+                }
+            });
+            presetColors.forEach(p => {
+                p.addEventListener('click', () => {
+                    colorPicker.value = p.dataset.color;
+                });
+            });
+
+            // 实时订阅更新
+            supabase
+                .channel('messages-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+                    loadMessages();   // 有任何变化自动刷新
+                })
+                .subscribe();
+
+            // 初始化
+            loadMessages();
+        })();
+    </script>
+</body>
+</html>
