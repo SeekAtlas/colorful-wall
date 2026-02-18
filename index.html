@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>轻声回廊 · 简洁版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f0ea;
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .main-wrapper {
+            max-width: 880px;
+            width: 100%;
+            background: #fffcf8;
+            border-radius: 36px 36px 28px 28px;
+            padding: 1.5rem 1.5rem;
+            border: 1px solid #f0e7dd;
+        }
+        .wall-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .wall-header h1 {
+            font-size: 2rem;
+            color: #4d443b;
+            border-bottom: 2px solid #e8d9ce;
+            display: inline-block;
+            padding-bottom: 0.3rem;
+            padding-inline: 1rem;
+        }
+        .wall-header p {
+            color: #9a8b7f;
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+        }
+        .capacity-text {
+            display: flex;
+            justify-content: flex-end;
+            color: #7f6e60;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+        .capacity-bar {
+            background: #e8ddd2;
+            border-radius: 30px;
+            height: 12px;
+            margin: 5px 0 20px;
+            overflow: hidden;
+        }
+        .capacity-fill {
+            height: 100%;
+            background: #c9b2a0;
+            width: 0%;
+            transition: width 0.2s;
+        }
+        .message-form {
+            background: #fefcf9;
+            border-radius: 28px;
+            padding: 1.4rem 1.5rem;
+            margin-bottom: 1.8rem;
+            border: 1px solid #e5d7cc;
+        }
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            margin-bottom: 1rem;
+        }
+        .input-row label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9b897b;
+            margin-left: 0.5rem;
+        }
+        .input-row input, .input-row textarea {
+            background: #fffaf5;
+            border: 1.5px solid #ecdacf;
+            border-radius: 24px;
+            padding: 0.7rem 1.2rem;
+            font-size: 0.9rem;
+            outline: none;
+            width: 100%;
+        }
+        .input-row textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            background: #fcf6f0;
+            padding: 0.6rem 1rem;
+            border-radius: 40px;
+            margin-bottom: 1rem;
+        }
+        .color-row label {
+            font-size: 0.85rem;
+            color: #8b7a6b;
+        }
+        #colorPicker {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+        .preset-colors {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .preset {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+        .submit-btn {
+            background: #ccb8a8;
+            border: none;
+            border-radius: 40px;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            border-bottom: 4px solid #a58e7c;
+        }
+        .submit-btn:active {
+            transform: translateY(2px);
+        }
+        .message-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+        .count-badge {
+            background: #ede3da;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: #5f5246;
+        }
+        .message-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .message-item {
+            background: white;
+            border-radius: 24px;
+            padding: 1rem 1.2rem;
+            border-left: 8px solid #d9c2b0;
+        }
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.3rem;
+        }
+        .message-name {
+            font-weight: 700;
+            color: #5f4e40;
+            background: #f7efe8;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+        }
+        .message-time {
+            font-size: 0.65rem;
+            color: #aa9a8b;
+        }
+        .message-text {
+            font-size: 1rem;
+            line-height: 1.4;
+            color: #302b27;
+            margin: 0.3rem 0;
+        }
+        .comment-section {
+            margin-top: 0.8rem;
+            padding-left: 0.8rem;
+            border-left: 3px solid #edd9cb;
+        }
+        .comment-item {
+            background: #f9f4ef;
+            border-radius: 16px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.1rem;
+        }
+        .comment-name {
+            font-weight: 600;
+            color: #6b5b4e;
+            font-size: 0.8rem;
+            background: #efe4db;
+            padding: 0.1rem 0.6rem;
+            border-radius: 30px;
+        }
+        .comment-time {
+            font-size: 0.6rem;
+            color: #ad9f93;
+        }
+        .comment-text {
+            color: #3d352f;
+            line-height: 1.3;
+        }
+        .reply-btn {
+            background: none;
+            border: 1px solid #dccfc4;
+            color: #7b6b5e;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 0.3rem;
+        }
+        .reply-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .reply-box {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 30px;
+            padding: 1.5rem;
+        }
+        .reply-box h3 {
+            color: #4d443b;
+            margin-bottom: 1rem;
+        }
+        .reply-box input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            border: 1.5px solid #ecdacf;
+            border-radius: 30px;
+            font-size: 0.95rem;
+        }
+        .reply-box textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            border: 1.5px solid #ecdacf;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+        .reply-buttons {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+        }
+        .reply-send {
+            background: #ccb8a8;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .reply-cancel {
+            background: transparent;
+            border: 1px solid #cbb7a8;
+            padding: 0.6rem 1.5rem;
+            border-radius: 30px;
+            color: #8b7869;
+            cursor: pointer;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            background: #faf5f0;
+            border-radius: 40px;
+            color: #ac9a8a;
+        }
+        .footer-note {
+            margin-top: 2rem;
+            color: #aa9a8b;
+            text-align: center;
+            font-size: 0.7rem;
+            border-top: 1px solid #ebddcf;
+            padding-top: 1.2rem;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="wall-header">
+            <h1>📮 轻声回廊</h1>
+            <p>每人留话 · 点回复弹出输入框</p>
+        </div>
+
+        <div class="capacity-text">
+            <span id="capacityUsed">0</span> / 30 条主留言
+        </div>
+        <div class="capacity-bar">
+            <div class="capacity-fill" id="capacityFill"></div>
+        </div>
+
+        <div class="message-form">
+            <div class="input-row">
+                <label>👤 你的名字</label>
+                <input type="text" id="nameInput" placeholder="匿名" maxlength="30">
+            </div>
+            <div class="color-row">
+                <label>🎨 你的颜色</label>
+                <input type="color" id="colorPicker" value="#d9c2b0">
+                <div class="preset-colors">
+                    <div class="preset" style="background: #d9c2b0;" data-color="#d9c2b0"></div>
+                    <div class="preset" style="background: #c0b7ae;" data-color="#c0b7ae"></div>
+                    <div class="preset" style="background: #e3c9bc;" data-color="#e3c9bc"></div>
+                </div>
+            </div>
+            <div class="input-row">
+                <label>📝 留一句话</label>
+                <textarea id="messageInput" placeholder="写下一句话……" maxlength="280"></textarea>
+            </div>
+            <button class="submit-btn" id="postBtn">📮 发布主留言</button>
+        </div>
+
+        <div class="message-stat">
+            <span class="count-badge" id="messageCount">0 / 30 主留言</span>
+        </div>
+
+        <div id="messageList" class="message-grid">
+            <div class="empty-state">🌸 加载中...</div>
+        </div>
+
+        <div class="footer-note">
+            🌿 主留言最多30句 · 评论不限
+        </div>
+    </div>
+
+    <!-- 回复弹窗 -->
+    <div id="replyPopup" class="reply-popup hidden">
+        <div class="reply-box">
+            <h3 id="replyTitle">回复</h3>
+            <input type="text" id="replyName" placeholder="你的名字" value="匿名">
+            <textarea id="replyText" placeholder="写评论..."></textarea>
+            <div class="reply-buttons">
+                <button class="reply-send" id="replySend">发送</button>
+                <button class="reply-cancel" id="replyCancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const SUPABASE_URL = 'https://tnwmhcddhzyeqpwkwzxz.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRud21oY2RkaHp5ZXFwd2t3enh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MzQyOTgsImV4cCI6MjA4NjUxMDI5OH0.nMYL_TKYhJiMtLigfIZslFKDLLYEfdH_30SJD2H6bV0';
+            
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const MAX_MAIN_MESSAGES = 30;
+            
+            // 当前正在回复的留言ID
+            let currentReplyId = null;
+
+            // DOM 元素
+            const messageListEl = document.getElementById('messageList');
+            const messageCountEl = document.getElementById('messageCount');
+            const capacityUsedEl = document.getElementById('capacityUsed');
+            const capacityFillEl = document.getElementById('capacityFill');
+            const nameInput = document.getElementById('nameInput');
+            const messageInput = document.getElementById('messageInput');
+            const colorPicker = document.getElementById('colorPicker');
+            const postBtn = document.getElementById('postBtn');
+            const presetColors = document.querySelectorAll('.preset');
+            
+            // 弹窗元素
+            const replyPopup = document.getElementById('replyPopup');
+            const replyTitle = document.getElementById('replyTitle');
+            const replyName = document.getElementById('replyName');
+            const replyText = document.getElementById('replyText');
+            const replySend = document.getElementById('replySend');
+            const replyCancel = document.getElementById('replyCancel');
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/[&<>"]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    if (m === '"') return '&quot;';
+                    return m;
+                });
+            }
+
+            // 加载留言
+            async function loadMessages() {
+                try {
+                    // 获取主留言
+                    const { data: mainMessages, error: mainError } = await supabase
+                        .from('messages')
+                        .select('*')
+                        .or('type.eq.main,type.is.null')
+                        .order('timestamp', { ascending: false })
+                        .limit(MAX_MAIN_MESSAGES);
+                    
+                    if (mainError) throw mainError;
+
+                    // 获取评论
+                    const { data: allComments, error: commentError } = await supabase
+                        .from('messages')
+                        .select('*')
+                        .eq('type', 'comment')
+                        .order('timestamp', { ascending: true });
+
+                    if (commentError) throw commentError;
+
+                    // 整理评论
+                    const commentMap = {};
+                    if (allComments) {
+                        allComments.forEach(c => {
+                            if (c.parent_id) {
+                                if (!commentMap[c.parent_id]) commentMap[c.parent_id] = [];
+                                commentMap[c.parent_id].push(c);
+                            }
+                        });
+                    }
+
+                    // 渲染
+                    renderMessages(mainMessages || [], commentMap);
+                    updateCapacityUI(mainMessages?.length || 0);
+                } catch (err) {
+                    console.error(err);
+                    messageListEl.innerHTML = '<div class="empty-state">⚠️ 加载失败</div>';
+                }
+            }
+
+            // 渲染留言
+            function renderMessages(mainList, commentMap) {
+                if (!mainList.length) {
+                    messageListEl.innerHTML = '<div class="empty-state">🍃 还没有留言……</div>';
+                    return;
+                }
+
+                let html = '';
+                mainList.forEach(main => {
+                    const mainId = main.id;
+                    const mainName = main.name?.trim() ? escapeHtml(main.name) : '<span class="anonymous">匿名</span>';
+                    const mainText = escapeHtml(main.text || '');
+                    const mainColor = main.color?.match(/^#[0-9A-Fa-f]{6}$/) ? main.color : '#d9c2b0';
+                    const mainTime = main.timestamp ? new Date(main.timestamp).toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+
+                    html += `<div class="message-item" style="border-left-color: ${mainColor};">`;
+                    html += `<div class="message-header">`;
+                    html += `<span class="message-name">${mainName}</span>`;
+                    html += `<span class="message-time">${mainTime}</span>`;
+                    html += `</div>`;
+                    html += `<div class="message-text">${mainText}</div>`;
+
+                    // 显示评论
+                    const comments = commentMap[mainId] || [];
+                    if (comments.length > 0) {
+                        html += `<div class="comment-section">`;
+                        comments.forEach(cmt => {
+                            const cmtName = cmt.name?.trim() ? escapeHtml(cmt.name) : '<span class="anonymous">匿名</span>';
+                            const cmtText = escapeHtml(cmt.text || '');
+                            const cmtTime = cmt.timestamp ? new Date(cmt.timestamp).toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+                            html += `<div class="comment-item">`;
+                            html += `<div class="comment-header"><span class="comment-name">${cmtName}</span><span class="comment-time">${cmtTime}</span></div>`;
+                            html += `<div class="comment-text">${cmtText}</div>`;
+                            html += `</div>`;
+                        });
+                        html += `</div>`;
+                    }
+
+                    // 回复按钮
+                    html += `<button class="reply-btn" data-message-id="${mainId}" data-message-name="${main.name || '匿名'}">💬 回复</button>`;
+                    html += `</div>`;
+                });
+
+                messageListEl.innerHTML = html;
+            }
+
+            // 更新容量
+            function updateCapacityUI(count) {
+                capacityUsedEl.innerText = count;
+                capacityFillEl.style.width = (count / MAX_MAIN_MESSAGES * 100) + '%';
+                messageCountEl.innerText = `${count} / ${MAX_MAIN_MESSAGES} 主留言`;
+            }
+
+            // 获取主留言数量
+            async function getMainCount() {
+                const { count } = await supabase
+                    .from('messages')
+                    .select('*', { count: 'exact', head: true })
+                    .or('type.eq.main,type.is.null');
+                return count || 0;
+            }
+
+            // 发布主留言
+            async function addMainMessage() {
+                const currentCount = await getMainCount();
+                if (currentCount >= MAX_MAIN_MESSAGES) {
+                    if (!confirm('已达30条上限，发送后将自动删除最旧的一条。继续？')) {
+                        return;
+                    }
+                }
+
+                const text = messageInput.value.trim();
+                if (!text) {
+                    alert('请写一句话');
+                    return;
+                }
+
+                const name = nameInput.value.trim() || '匿名';
+                const color = colorPicker.value;
+
+                const { error } = await supabase
+                    .from('messages')
+                    .insert([{
+                        name: name,
+                        text: text,
+                        color: color,
+                        timestamp: Date.now(),
+                        type: 'main',
+                        parent_id: null
+                    }]);
+                
+                if (error) {
+                    alert('发布失败: ' + error.message);
+                    return;
+                }
+
+                messageInput.value = '';
+                loadMessages();
+            }
+
+            // 发布评论
+            async function addComment() {
+                if (!currentReplyId) return;
+
+                const name = replyName.value.trim() || '匿名';
+                const text = replyText.value.trim();
+                
+                if (!text) {
+                    alert('评论不能为空');
+                    return;
+                }
+
+                const { error } = await supabase
+                    .from('messages')
+                    .insert([{
+                        name: name,
+                        text: text,
+                        color: '#d9c2b0',
+                        timestamp: Date.now(),
+                        type: 'comment',
+                        parent_id: currentReplyId
+                    }]);
+                
+                if (error) {
+                    alert('评论失败: ' + error.message);
+                    return;
+                }
+
+                // 关闭弹窗
+                replyPopup.classList.add('hidden');
+                currentReplyId = null;
+                replyText.value = '';
+                
+                // 刷新
+                loadMessages();
+            }
+
+            // 打开回复弹窗
+            function openReply(messageId, messageName) {
+                currentReplyId = messageId;
+                replyTitle.innerText = `回复 ${messageName}`;
+                replyName.value = nameInput.value.trim() || '匿名'; // 默认用主留言的名字
+                replyText.value = '';
+                replyPopup.classList.remove('hidden');
+            }
+
+            // 事件监听
+            messageListEl.addEventListener('click', (e) => {
+                if (e.target.classList.contains('reply-btn')) {
+                    const messageId = e.target.dataset.messageId;
+                    const messageName = e.target.dataset.messageName;
+                    openReply(messageId, messageName);
+                }
+            });
+
+            postBtn.addEventListener('click', addMainMessage);
+            
+            replySend.addEventListener('click', addComment);
+            
+            replyCancel.addEventListener('click', () => {
+                replyPopup.classList.add('hidden');
+                currentReplyId = null;
+                replyText.value = '';
+            });
+
+            // 预设颜色
+            presetColors.forEach(p => {
+                p.addEventListener('click', () => {
+                    colorPicker.value = p.dataset.color;
+                });
+            });
+
+            // 实时订阅
+            supabase
+                .channel('messages-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, loadMessages)
+                .subscribe();
+
+            // 启动
+            loadMessages();
+        })();
+    </script>
+</body>
+</html>
