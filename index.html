@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轻声回廊 · 可评论版</title>
+    <style>
+        /* === 柔和舒适主题 · 护眼低饱和 === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background: #f4f0ea;  /* 暖灰底 */
+            min-height: 100vh;
+            padding: 2rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .main-wrapper {
+            max-width: 880px;
+            width: 100%;
+            background: #fffcf8;
+            border-radius: 36px 36px 28px 28px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+            padding: 2rem 2rem;
+            border: 1px solid #f0e7dd;
+        }
+        .wall-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .wall-header h1 {
+            font-size: 2.2rem;
+            font-weight: 540;
+            color: #4d443b;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #e8d9ce;
+            display: inline-block;
+            padding-bottom: 0.3rem;
+            padding-inline: 1.2rem;
+        }
+        .wall-header p {
+            color: #9a8b7f;
+            font-size: 1rem;
+            margin-top: 0.3rem;
+        }
+
+        /* 容量条 – 柔和大地色 */
+        .capacity-text {
+            display: flex;
+            justify-content: flex-end;
+            color: #7f6e60;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        .capacity-bar {
+            background: #e8ddd2;
+            border-radius: 30px;
+            height: 14px;
+            margin: 10px 0 25px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 4px #cdbcae;
+        }
+        .capacity-fill {
+            height: 100%;
+            background: #c9b2a0;
+            width: 0%;
+            border-radius: 30px;
+            transition: width 0.2s;
+        }
+
+        /* 表单 – 圆润温和 */
+        .message-form {
+            background: #fefcf9;
+            border-radius: 32px;
+            padding: 1.8rem 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e5d7cc;
+            box-shadow: 0 6px 0 #ddd0c4;
+        }
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            margin-bottom: 1.2rem;
+        }
+        .input-row label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #9b897b;
+            letter-spacing: 0.5px;
+            margin-left: 0.5rem;
+        }
+        .input-row input, .input-row textarea {
+            background: #fffaf5;
+            border: 1.5px solid #ecdacf;
+            border-radius: 28px;
+            padding: 0.8rem 1.4rem;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.1s;
+            color: #2d2a27;
+        }
+        .input-row input:focus, .input-row textarea:focus {
+            border-color: #cfb9aa;
+            background: white;
+        }
+        .input-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* 颜色选择 – 温和点缀 */
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            background: #fcf6f0;
+            padding: 0.7rem 1.2rem;
+            border-radius: 40px;
+            margin-bottom: 1.2rem;
+        }
+        .color-row label {
+            font-size: 0.9rem;
+            color: #8b7a6b;
+        }
+        #colorPicker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #cfb6a5;
+            box-shadow: 0 0 0 1px #cfb9aa;
+            cursor: pointer;
+        }
+        .preset-colors {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .preset {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px #bba28e;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .preset:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px #b3927c;
+        }
+
+        /* 主按钮 */
+        .submit-btn {
+            background: #ccb8a8;
+            border: none;
+            border-radius: 50px;
+            padding: 0.9rem 2rem;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            cursor: pointer;
+            width: 100%;
+            border-bottom: 4px solid #a58e7c;
+            transition: 0.05s linear;
+        }
+        .submit-btn:hover {
+            background: #d6c2b2;
+            transform: translateY(-2px);
+            border-bottom-width: 4px;
+        }
+        .submit-btn:active {
+            transform: translateY(4px);
+            border-bottom-width: 0;
+        }
+        .submit-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            background: #c5b5a8;
+            border-bottom-color: #9f8e80;
+        }
+
+        .message-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .count-badge {
+            background: #ede3da;
+            padding: 0.4rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: #5f5246;
+        }
+        /* 简洁无全局删除 */
+
+        /* 留言卡片区域 */
+        .message-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        /* 主留言卡片 */
+        .message-item {
+            background: white;
+            border-radius: 28px 28px 28px 12px;
+            padding: 1.2rem 1.5rem 0.8rem 1.5rem;
+            border-left: 8px solid #d9c2b0; /* 动态颜色 */
+            box-shadow: 0 6px 0 #e1d3c8, 0 2px 12px rgba(140, 110, 80, 0.06);
+            transition: 0.1s;
+        }
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.4rem;
+        }
+        .message-name {
+            font-weight: 700;
+            color: #5f4e40;
+            background: #f7efe8;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            border: 1px solid #eedaca;
+        }
+        .message-time {
+            font-size: 0.7rem;
+            color: #aa9a8b;
+        }
+        .message-text {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            color: #302b27;
+            margin: 0.4rem 0 0.6rem 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            padding-left: 0.2rem;
+        }
+
+        /* 评论区 */
+        .comment-section {
+            margin-top: 0.8rem;
+            padding-left: 0.8rem;
+            border-left: 3px solid #edd9cb;
+        }
+        .comment-item {
+            background: #f9f4ef;
+            border-radius: 20px 20px 20px 6px;
+            padding: 0.6rem 1.2rem;
+            margin-bottom: 0.6rem;
+            border-left: 5px solid #cfb9aa; /* 评论的左边框颜色取自父留言 */
+            font-size: 0.95rem;
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.15rem;
+        }
+        .comment-name {
+            font-weight: 600;
+            color: #6b5b4e;
+            font-size: 0.85rem;
+            background: #efe4db;
+            padding: 0.1rem 0.8rem;
+            border-radius: 30px;
+        }
+        .comment-time {
+            font-size: 0.65rem;
+            color: #ad9f93;
+        }
+        .comment-text {
+            color: #3d352f;
+            margin: 0.2rem 0 0.2rem 0;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        /* 回复按钮与输入区 */
+        .reply-action {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+        .reply-toggle {
+            background: none;
+            border: 1px solid #dccfc4;
+            color: #7b6b5e;
+            font-size: 0.75rem;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .reply-toggle:hover {
+            background: #ece1d7;
+            border-color: #b29e8e;
+        }
+        .reply-form {
+            margin-top: 0.8rem;
+            margin-bottom: 0.3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: #fcf7f2;
+            padding: 0.8rem 1rem;
+            border-radius: 24px;
+        }
+        .reply-input {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .reply-input input {
+            flex: 1;
+            min-width: 140px;
+            background: white;
+            border: 1px solid #e2d3c8;
+            border-radius: 30px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        .reply-input input:focus {
+            border-color: #c9b2a0;
+            outline: none;
+        }
+        .reply-submit {
+            background: #c9b2a0;
+            border: none;
+            border-radius: 30px;
+            padding: 0.5rem 1.2rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-bottom: 3px solid #9f8a7a;
+        }
+        .reply-submit:hover {
+            background: #d5bfad;
+        }
+        .reply-submit:active {
+            transform: translateY(2px);
+            border-bottom-width: 1px;
+        }
+        .cancel-reply {
+            background: transparent;
+            border: 1px solid #cbb7a8;
+            color: #8b7869;
+            border-radius: 30px;
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: #faf5f0;
+            border-radius: 48px;
+            color: #ac9a8a;
+            border: 2px dashed #e0cfc0;
+        }
+
+        .footer-note {
+            margin-top: 2.5rem;
+            color: #aa9a8b;
+            text-align: center;
+            font-size: 0.75rem;
+            border-top: 1px solid #ebddcf;
+            padding-top: 1.5rem;
+        }
+        .anonymous {
+            color: #a28f80;
+            font-style: italic;
+        }
+    </style>
+    <!-- 引入Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="wall-header">
+            <h1>📮 轻声回廊</h1>
+            <p>每人留话 · 也可回应他人</p>
+        </div>
+
+        <!-- 容量槽 -->
+        <div class="capacity-text">
+            <span id="capacityUsed">0</span> / 30 条主留言
+        </div>
+        <div class="capacity-bar">
+            <div class="capacity-fill" id="capacityFill"></div>
+        </div>
+
+        <!-- 主留言表单 -->
+        <div class="message-form">
+            <div class="input-row">
+                <label>👤 你的名字</label>
+                <input type="text" id="nameInput" placeholder="匿名" maxlength="30">
+            </div>
+            <div class="color-row">
+                <label>🎨 你的颜色</label>
+                <input type="color" id="colorPicker" value="#d9c2b0">
+                <div class="preset-colors">
+                    <div class="preset" style="background: #d9c2b0;" data-color="#d9c2b0"></div>
+                    <div class="preset" style="background: #c0b7ae;" data-color="#c0b7ae"></div>
+                    <div class="preset" style="background: #e3c9bc;" data-color="#e3c9bc"></div>
+                    <div class="preset" style="background: #b9cfd4;" data-color="#b9cfd4"></div>
+                    <div class="preset" style="background: #d7c0d0;" data-color="#d7c0d0"></div>
+                </div>
+            </div>
+            <div class="input-row">
+                <label>📝 留一句话</label>
+                <textarea id="messageInput" placeholder="写下一句话……" maxlength="280"></textarea>
+            </div>
+            <button class="submit-btn" id="postBtn">📮 发布主留言</button>
+        </div>
+
+        <!-- 统计 -->
+        <div class="message-stat">
+            <span class="count-badge" id="messageCount">0 / 30 主留言</span>
+            <!-- 没有清空按钮，符合不能删除的要求 -->
+        </div>
+
+        <!-- 留言列表（主留言+嵌套评论） -->
+        <div id="messageList" class="message-grid">
+            <div class="empty-state">🌸 加载中...</div>
+        </div>
+
+        <div class="footer-note">
+            🌿 主留言最多30句 · 评论不限 · 所有人都可见
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Supabase 配置（使用之前已创建的密钥）
+            const SUPABASE_URL = 'https://tnwmhcddhzyeqpwkwzxz.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRud21oY2RkaHp5ZXFwd2t3enh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MzQyOTgsImV4cCI6MjA4NjUxMDI5OH0.nMYL_TKYhJiMtLigfIZslFKDLLYEfdH_30SJD2H6bV0';
+            
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const MAX_MAIN_MESSAGES = 30;  // 主留言上限
+
+            // 存储当前展开的回复框 (记录正在回复哪条主留言)
+            let activeReplyId = null;
+
+            // DOM
+            const messageListEl = document.getElementById('messageList');
+            const messageCountEl = document.getElementById('messageCount');
+            const capacityUsedEl = document.getElementById('capacityUsed');
+            const capacityFillEl = document.getElementById('capacityFill');
+            const nameInput = document.getElementById('nameInput');
+            const messageInput = document.getElementById('messageInput');
+            const colorPicker = document.getElementById('colorPicker');
+            const postBtn = document.getElementById('postBtn');
+            const presetColors = document.querySelectorAll('.preset');
+
+            // 转义
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/[&<>"]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    if (m === '"') return '&quot;';
+                    return m;
+                });
+            }
+
+            // 获取所有主留言（type = 'main'）以及它们的评论（关联的comments）
+            async function loadMessages() {
+                try {
+                    // 1. 获取主留言 (type='main' 或者没有type字段的旧数据兼容)
+                    let { data: mainMessages, error: mainError } = await supabase
+                        .from('messages')
+                        .select('*')
+                        .or('type.eq.main,type.is.null')  // 兼容旧数据
+                        .order('timestamp', { ascending: false })
+                        .limit(MAX_MAIN_MESSAGES);
+                    
+                    if (mainError) throw mainError;
+
+                    // 2. 获取所有评论 (type='comment')，按时间正序（让评论按时间从旧到新显示）
+                    const { data: allComments, error: commentError } = await supabase
+                        .from('messages')
+                        .select('*')
+                        .eq('type', 'comment')
+                        .order('timestamp', { ascending: true });  // 正序展示评论
+
+                    if (commentError) throw commentError;
+
+                    // 3. 构建评论映射表：parent_id -> [comments]
+                    const commentMap = {};
+                    if (allComments) {
+                        allComments.forEach(c => {
+                            if (c.parent_id) {
+                                if (!commentMap[c.parent_id]) commentMap[c.parent_id] = [];
+                                commentMap[c.parent_id].push(c);
+                            }
+                        });
+                    }
+
+                    // 4. 将评论挂载到对应的主留言上
+                    const mainWithComments = (mainMessages || []).map(main => ({
+                        ...main,
+                        comments: commentMap[main.id] || []
+                    }));
+
+                    renderMessages(mainWithComments);
+                    updateCapacityUI(mainWithComments.length);
+                } catch (err) {
+                    console.error(err);
+                    messageListEl.innerHTML = '<div class="empty-state">⚠️ 加载失败，稍后重试</div>';
+                }
+            }
+
+            // 渲染主留言及嵌套评论
+            function renderMessages(mainList) {
+                if (!mainList.length) {
+                    messageListEl.innerHTML = '<div class="empty-state">🍃 还没有留言…… 写一句话吧</div>';
+                    return;
+                }
+
+                let html = '';
+                mainList.forEach(main => {
+                    const mainId = main.id;
+                    const mainName = (main.name && main.name.trim()) ? escapeHtml(main.name.trim()) : '<span class="anonymous">匿名</span>';
+                    const mainText = escapeHtml(main.text || '');
+                    const mainColor = (main.color && /^#[0-9A-Fa-f]{6}$/.test(main.color)) ? main.color : '#d9c2b0';
+                    const mainTime = main.timestamp ? new Date(main.timestamp).toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+
+                    // 开始主卡片
+                    html += `<div class="message-item" id="msg-${mainId}" style="border-left-color: ${mainColor};">`;
+                    html += `<div class="message-header">`;
+                    html += `<span class="message-name">${mainName}</span>`;
+                    html += `<span class="message-time">${mainTime}</span>`;
+                    html += `</div>`;
+                    html += `<div class="message-text">${mainText}</div>`;
+
+                    // 评论区
+                    html += `<div class="comment-section" id="comments-${mainId}">`;
+                    
+                    // 显示已有评论
+                    const comments = main.comments || [];
+                    comments.forEach(cmt => {
+                        const cmtName = (cmt.name && cmt.name.trim()) ? escapeHtml(cmt.name.trim()) : '<span class="anonymous">匿名</span>';
+                        const cmtText = escapeHtml(cmt.text || '');
+                        const cmtTime = cmt.timestamp ? new Date(cmt.timestamp).toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+                        html += `<div class="comment-item" style="border-left-color: ${mainColor};">`;
+                        html += `<div class="comment-header"><span class="comment-name">${cmtName}</span><span class="comment-time">${cmtTime}</span></div>`;
+                        html += `<div class="comment-text">${cmtText}</div>`;
+                        html += `</div>`;
+                    });
+                    
+                    html += `</div>`; // 结束comment-section
+
+                    // 回复按钮区域
+                    html += `<div class="reply-action">`;
+                    html += `<button class="reply-toggle" onclick="toggleReply('${mainId}')">💬 回复</button>`;
+                    html += `</div>`;
+
+                    // 回复表单（动态隐藏/显示，由activeReplyId控制）
+                    if (activeReplyId === mainId) {
+                        html += `<div class="reply-form" id="reply-form-${mainId}">`;
+                        html += `<div class="reply-input">`;
+                        html += `<input type="text" id="reply-name-${mainId}" placeholder="你的名字" value="">`;
+                        html += `<input type="text" id="reply-text-${mainId}" placeholder="写评论...">`;
+                        html += `</div>`;
+                        html += `<div style="display: flex; gap: 0.5rem; justify-content: flex-end;">`;
+                        html += `<button class="reply-submit" onclick="submitReply('${mainId}')">发送</button>`;
+                        html += `<button class="cancel-reply" onclick="cancelReply()">取消</button>`;
+                        html += `</div>`;
+                        html += `</div>`;
+                    }
+
+                    html += `</div>`; // 结束message-item
+                });
+
+                messageListEl.innerHTML = html;
+
+                // 把函数挂载到window上，供onclick调用
+                window.toggleReply = function(mainId) {
+                    activeReplyId = (activeReplyId === mainId) ? null : mainId;
+                    loadMessages();  // 重新渲染以显示/隐藏回复框
+                };
+
+                window.cancelReply = function() {
+                    activeReplyId = null;
+                    loadMessages();
+                };
+
+                window.submitReply = async function(mainId) {
+                    const replyName = document.getElementById(`reply-name-${mainId}`)?.value.trim() || '匿名';
+                    const replyText = document.getElementById(`reply-text-${mainId}`)?.value.trim();
+                    if (!replyText) {
+                        alert('评论不能为空');
+                        return;
+                    }
+
+                    // 发布评论 (type = 'comment', parent_id = mainId)
+                    const { error } = await supabase
+                        .from('messages')
+                        .insert([{
+                            name: replyName,
+                            text: replyText,
+                            color: '#d9c2b0',      // 评论沿用主色调，不额外选色
+                            timestamp: Date.now(),
+                            type: 'comment',
+                            parent_id: mainId
+                        }]);
+                    
+                    if (error) {
+                        alert('评论失败: ' + error.message);
+                        return;
+                    }
+
+                    // 关闭回复框，刷新
+                    activeReplyId = null;
+                    loadMessages();
+                };
+            }
+
+            // 更新容量显示 + 按钮控制（>30禁用，但因为有触发器永远不会到31）
+            function updateCapacityUI(count) {
+                capacityUsedEl.innerText = count;
+                const percent = (count / MAX_MAIN_MESSAGES) * 100;
+                capacityFillEl.style.width = percent + '%';
+                messageCountEl.innerText = `${count} / ${MAX_MAIN_MESSAGES} 主留言`;
+
+                // 超过30才禁用按钮 (实际上因为触发器，不会超过30)
+                postBtn.classList.toggle('disabled', count > MAX_MAIN_MESSAGES);
+                postBtn.disabled = count > MAX_MAIN_MESSAGES;
+            }
+
+            // 获取当前主留言数量
+            async function getMainCount() {
+                const { count, error } = await supabase
+                    .from('messages')
+                    .select('*', { count: 'exact', head: true })
+                    .or('type.eq.main,type.is.null');
+                if (error) {
+                    console.warn(error);
+                    return 0;
+                }
+                return count || 0;
+            }
+
+            // 发布主留言
+            async function addMainMessage() {
+                const currentCount = await getMainCount();
+                if (currentCount >= MAX_MAIN_MESSAGES) {
+                    if (!confirm('⚠️ 主留言已达30条上限，发送后将自动删除最旧的一条。确定继续？')) {
+                        return;
+                    }
+                }
+
+                const text = messageInput.value.trim();
+                if (!text) {
+                    alert('请写一句话');
+                    return;
+                }
+
+                const name = nameInput.value.trim() || '匿名';
+                const color = colorPicker.value;
+
+                // 插入主留言 (type = 'main')
+                const { error } = await supabase
+                    .from('messages')
+                    .insert([{
+                        name: name,
+                        text: text,
+                        color: color,
+                        timestamp: Date.now(),
+                        type: 'main',
+                        parent_id: null
+                    }]);
+                
+                if (error) {
+                    alert('发布失败: ' + error.message);
+                    return;
+                }
+
+                messageInput.value = '';
+                loadMessages();
+            }
+
+            // 绑定事件
+            postBtn.addEventListener('click', addMainMessage);
+            messageInput.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    addMainMessage();
+                }
+            });
+            presetColors.forEach(p => {
+                p.addEventListener('click', () => {
+                    colorPicker.value = p.dataset.color;
+                });
+            });
+
+            // 实时订阅（有新消息或评论就刷新）
+            supabase
+                .channel('messages-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+                    loadMessages();
+                })
+                .subscribe();
+
+            // 启动
+            loadMessages();
+        })();
+    </script>
+</body>
+</html>
